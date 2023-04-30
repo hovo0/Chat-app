@@ -1,27 +1,140 @@
-<!-- chat/templates/chat/index.html -->
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8"/>
     <title>Chat Rooms</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #ccf5f7a8;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .h1 {
+            color: #0087a3;
+        }
+
+        .logo {
+            width: 300px;
+            height: 300px;
+            background-image: url('https://i.ibb.co/4g2HQdr/logo-removebg-preview.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 50px;
+        }
+
+        .form input[type="text"] {
+            width: 300px;
+            height: 40px;
+            padding: 10px;
+            font-size: 26px;
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .form input[type="text"]:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+        .form button {
+            width: 150px;
+            height: 50px;
+            background-color: #007bff;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 25px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .button {
+            border-radius: 20px;
+            border: 1px solid #00a8d5;
+            background-color: #00a8d5;
+            color: #FFFFFF;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 12px 45px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: transform 80ms ease-in;
+        }
+
+        .form button:hover {
+            background-color: #0062cc;
+        }
+        footer {
+        background-color: #222;
+        color: #fff;
+        font-size: 14px;
+        bottom: 0;
+        position: fixed;
+        left: 0;
+        right: 0;
+        text-align: center;
+        z-index: 999;
+    }
+
+    footer p {
+        margin: 10px 0;
+    }
+
+    footer i {
+        color: red;
+    }
+
+    footer a {
+        color: #3c97bf;
+        text-decoration: none;
+    }
+    </style>
 </head>
 <body>
-    What chat room would you like to enter?<br>
-    <input id="room-name-input" type="text" size="100"><br>
-    <input id="room-name-submit" type="button" value="Enter">
+<div class="container">
+    <div class="logo"></div>
+    <h1 class="h1"> What chat room would you like to enter? </h1>
+    <div class="form">
+        <input id="room-name-input" type="text" size="100"><br>
+        <input class="button" id="room-name-submit" type="button" value="Enter">
+    </div>
+</div>
+<footer>
+    <p>
+        Created by Hovhannes Asatryan.
+    </p>
+</footer>
+<script>
+    document.querySelector('#room-name-input').focus();
+    document.querySelector('#room-name-input').onkeyup = function (e) {
+        if (e.keyCode === 13) {  // enter, return
+            document.querySelector('#room-name-submit').click();
+        }
+    };
 
-    <script>
-        document.querySelector('#room-name-input').focus();
-        document.querySelector('#room-name-input').onkeyup = function(e) {
-            if (e.keyCode === 13) {  // enter, return
-                document.querySelector('#room-name-submit').click();
-            }
-        };
-
-        document.querySelector('#room-name-submit').onclick = function(e) {
-            var roomName = document.querySelector('#room-name-input').value;
-            window.location.pathname = '/chat/' + roomName + '/';
-        };
-    </script>
+    document.querySelector('#room-name-submit').onclick = function (e) {
+        var roomName = document.querySelector('#room-name-input').value;
+        window.location.pathname = '/chat/' + roomName + '/';
+    };
+</script>
 </body>
 </html>

@@ -1,32 +1,126 @@
-<!-- chat/templates/chat/room.html -->
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8"/>
     <title>Chat Room</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: grid;
+            background: #00a8d526;
+        }
+
+        #chat-log {
+            width: 35%;
+            height: 120px;
+            font-size: 16px;
+            padding: 10px;
+            margin: -171px 143px;
+            display: block;
+            border: 4px solid #00a8d5a6;
+            border-radius: 35px;
+            overflow: auto;
+            resize: none;
+            background: #f8fdff;
+        }
+
+        #chat-message-input {
+            width: 80%;
+            height: 40px;
+            padding: 10px;
+            font-size: 26px;
+            border: 2px solid #00a8d5;
+            margin: 10px auto;
+            border-radius: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+
+        #chat-message-submit {
+            width: 35%;
+            font-size: 37px;
+            margin: 20px auto;
+            display: block;
+            cursor: pointer;
+            border-radius: 20px;
+            border: 1px solid #00a8d5;
+            background-color: #00a8d5;
+            color: #FFFFFF;
+            font-size: 25px;
+            font-weight: bold;
+            padding: 12px 45px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: transform 80ms ease-in;
+        }
+
+        #chat-message-submit:hover {
+            background-color: #1595b7;
+        }
+
+        p {
+            margin: 0;
+            padding: 5px;
+            font-size: 16px;
+        }
+
+        #message_container {
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+        }
+
+        #message_container p {
+            background-color: #f7fdff;
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 90%;
+            margin: 10px;
+            /*text-align: center;*/
+        }
+
+        #message_container p:last-child {
+            background-color: #00a8d5;
+            color: white;
+        }
+
+        .img {
+            width: 195px;
+            margin-left: 865px;
+        }
+
+        #public_key {
+            width: 35%;
+            height: 120px;
+            font-size: 16px;
+            padding: 10px;
+            margin-left: 1075px;
+            margin-top: -374px;
+            display: block;
+            border: 4px solid #00a8d5a6;
+            border-radius: 35px;
+            resize: none;
+            background: #f8fdff;
+            overflow: auto;
+
+
+        }
+
+
+    </style>
 </head>
-<style>
-    body {
-        background-color: #f0fff0;
-    }
-
-    #chat-log {
-        background-color: #e0ffe0;
-        border: 2px solid #008000;
-        color: #008000;
-    }
-
-</style>
 <body>
-
-<textarea id="chat-log" class="as" cols="100" rows="20"></textarea><br>
-<input id="chat-message-input" type="text" size="100"><br>
+<img src="https://i.ibb.co/4g2HQdr/logo-removebg-preview.png" class="img"/>
+<textarea readonly id="chat-log" cols="100" rows="20" placeholder="New messages will be shown here"></textarea><br>
+<input id="chat-message-input" type="text" size="100" placeholder="Write message here">
 <input id="chat-message-submit" type="button" value="Send">
 {{ room_name|json_script:"room-name" }}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.0.0-rc.1/jsencrypt.min.js"></script>
 <script>
     const roomName = JSON.parse(document.getElementById('room-name').textContent);
-
     const chatSocket = new WebSocket(
         'ws://'
         + window.location.host
@@ -41,20 +135,46 @@
     const publicKey = crypt.getPublicKey();
     console.log("Public key: " + publicKey);
     const privateKey = crypt.getPrivateKey()
-    console.log("private key" + privateKey)
-    const publicKeyElement = document.createElement("p");
+    // {#console.log("private key" + privateKey)#}
+    const publicKeyElement = document.createElement("textarea");
+    publicKeyElement.setAttribute("id", "public_key");
+    publicKeyElement.setAttribute("readonly", true);
+    publicKeyElement.setAttribute("style", "resize: none;");
     publicKeyElement.innerText = publicKey;
     document.body.appendChild(publicKeyElement);
 
 
     chatSocket.onmessage = function (e) {
         const data = JSON.parse(e.data);
+        const regex = /\[(.*?)\]\s*:\s*(.*?)\n/;
+        const matches = regex.exec(data.message);
+        const user = matches[1];
+        const message = matches[2];
+        const id = user + message
+
 
         // Decrypt message
         const decryptedMessage = crypt.decrypt(data.message);
         document.querySelector('#chat-log').value = (data.message + '\n');
-    };
 
+        const data_container = document.querySelector("#message_container");
+        const idValue = id;
+        const pElementExists = Boolean(data_container.querySelector(`p#${idValue}`));
+        if (!pElementExists) {
+            const data_msg = document.createElement("p");
+            data_msg.innerText = data.message;
+            if (data_container) {
+                data_container.appendChild(data_msg)
+            } else {
+                const new_container = document.createElement("div");
+                new_container.setAttribute("id", "message_container");
+                new_container.appendChild(data_msg)
+                document.body.appendChild(new_container);
+            }
+
+        }
+
+    };
     chatSocket.onclose = function (e) {
         console.error('Chat socket closed unexpectedly');
     };
@@ -72,14 +192,30 @@
 
         // Encrypt message with recipient's public key
         const encryptedMessage = crypt.encrypt(message);
+
         const username = "{{ username }}"
-        const msg = `[${username}]: ${message}\n<<Encrypted message>> : ${encryptedMessage}`;
+        const now = new Date();
+        const msg = `${now.toLocaleString()} : [${username}] : ${message}\n<<Encrypted message>> : ${encryptedMessage}`;
+        const msg_container = document.querySelector("#message_container");
+        const msg_show = document.createElement("p");
+        const id = username + message
+        msg_show.setAttribute("id", id)
+        msg_show.innerText = msg;
+        if (msg_container) {
+            msg_container.appendChild(msg_show);
+        } else {
+            const new_container = document.createElement("div");
+            new_container.setAttribute("id", "message_container");
+            new_container.appendChild(msg_show);
+            document.body.appendChild(new_container);
+        }
         chatSocket.send(JSON.stringify({
             'message': msg
         }));
         messageInputDom.value = '';
+
+
     };
 </script>
-
 </body>
 </html>
