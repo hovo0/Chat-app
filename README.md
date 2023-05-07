@@ -6,7 +6,7 @@ To get started with this project, follow these steps:
 
 Clone the repository to your local machine:
 ```bash
-git clone https://github.com/username/repo.git
+https://github.com/hovo0/Chat-app.git
 ```
 Navigate into the project directory:
 ```bash
